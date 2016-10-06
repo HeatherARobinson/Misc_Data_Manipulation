@@ -1,0 +1,32 @@
+
+k<-read.table("128 control.txt",header=T,sep="~")
+attach(k)
+
+for(i in 1:95){
+	contenti<-levels(k$ï..Content)[i]
+p<-k[k$ï..Content==levels(k$ï..Content)[i],]
+
+l0<-21
+j0i<-0
+fD1<-file(paste("Do1_",i, ".txt",sep=""), open="w")
+cat("Content","Time","D1","\n", file=fD1, sep="~")
+D1<-rep(NA,floor((dim (p)[1]-(l0-1))/2))
+tm1<-rep(NA,floor((dim (p)[1]-(l0-1))/2))
+for(j0 in seq(1,dim (p)[1]-l0,by=2))
+{j0i<-j0i+1
+D1[j0i]<-(p[j0+l0,"Log"]-(p[j0,"Log"]))/(p[j0+l0,"Time"]-(p[j0,"Time"]))
+tm1[j0i]<-mean(c(p[j0+l0,"Time"],p[j0,"Time"]))
+cat(contenti, tm1[j0i], D1[j0i],"\n", file=fD1, append=TRUE, sep="~")}
+close(fD1)
+}
+
+
+
+png(file="/path/to/file.png", width=5000, height=5000)
+par(mfrow=c(4,4),mar=c(3,3,3,3))
+for(i in 1:16){
+p<-read.table((paste("D1_",i,".txt",sep="")),header=T,sep="~")
+attach(p)
+plot(D1~Time, type="l",main=p$ï..Content[1],xaxis="Log[2] Growth Rate")
+abline(v=p$Peak, col="blue")
+}
