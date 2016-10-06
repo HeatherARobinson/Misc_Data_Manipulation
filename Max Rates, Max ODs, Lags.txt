@@ -1,0 +1,18 @@
+k<-read.table("138 nacl repeat stacked.txt",header=T,sep="~",na.strings=".")
+fD1<-file(paste("YPS128 e rate maxs.txt",sep=""), open="w")
+cat("Content","Lag","D1 max","Max OD","\n", file=fD1, sep="~")
+for(i in 10:96){
+contenti<-levels(k$Content)[i]
+p<-k[k$Content==levels(k$Content)[i],]
+l0<-21
+j0i<-0
+D1<-rep(NA,floor((dim (p)[1]-(l0-1))/2))
+tm1<-rep(NA,floor((dim (p)[1]-(l0-1))/2))
+for(j0 in seq(1,dim (p)[1]-l0,by=2)){
+j0i<-j0i+1
+D1[j0i]<-(p[j0+l0,"Adjusted.Log"]-(p[j0,"Adjusted.Log"]))/(p[j0+l0,"Time"]-(p[j0,"Time"]))
+tm1[j0i]<-mean(c(p[j0+l0,"Time"],p[j0,"Time"]))}
+cat(contenti,tm1[tm1>6][D1[tm1>6]==max(D1[tm1>6])][1], max(D1[tm1>6])[1], max(p["Adjusted.Data"]),"\n", file=fD1,append=TRUE,sep="~")}
+close(fD1)
+
+
