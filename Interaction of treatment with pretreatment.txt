@@ -1,0 +1,49 @@
+k<-read.table("master interaction table.txt", sep="~", header=T)
+levels(k$Treatment)[2]<-"1-Glucose"
+fullMod<-lm(Max.Rate~Pretreatment*Treatment, data=k)
+anova(fullMod)
+k$Strain<- factor(k$Strain, labels = c("128", "138"))
+for(S in levels(k$Strain)){
+fD1<-file(paste("Intercepts_",S, ".txt",sep=""), open="w")
+cat("Strain","Treatment", "Pretreatment","AIC(a)", "AIC(b)", "which smallest", "P value","\n")
+for(A in levels(k$Pretreatment)){
+for(B in levels(k$Treatment)){
+p<-k[k$Strain==S & (k$Pretreatment==A | k$Pretreatment==B) & (k$Treatment==A | k$Treatment==B) ,]
+if(A==B){next}
+#print(dim(p))
+a<-lm(k$Max.Rate~k$Pretreatment*k$Treatment, data=p)
+b<-lm(k$Max.Rate~k$Pretreatment+k$Treatment, data=p)
+cat(S,A,B,extractAIC(a),extractAIC(b),extractAIC(a)[2]<extractAIC(b)[2],anova(a,b)["Pr(>F)"][2,1], "\n")
+close(fD1)
+}}}
+
+#Determines whether an interaction effect between treatment and pretreatment is justified
+
+p<-k[k$Strains==levels(k$Strains)[i],]
+fD1<-file(paste("Intercepts_",i, ".txt",sep=""), open="w")
+cat("Treatment", "Intercept","Pretreatment","\n")
+
+a<-lm(k$Max.Rate~k$Pretreatment*k$Treatment, data=p)
+anova(a)
+b<-lm(k$Max.Rate~k$Pretreatment+k$Treatment, data=p)
+anova(a,b)
+extractAIC(a)
+extractAIC(b)
+b<-update(a, ~.-k$Pretreatment:k$Treatment)
+anova(b)
+
+aAIC<-extractAIC(a)
+bAIC<-extractAIC(b)
+which.min(c(aAIC[2],bAIC[2]))
+anov1<-anova(a,b)
+names(anov1)[6]<-"Pvalue"
+int<-anov1$Pvalue
+cat((p[k$Treatment][i]), (p[int][i]), (p[k$Pretreatment][i]),"\n", file=fD1, append=TRUE, sep="~")
+close(fD1)
+
+#Prints AIC comparison to file
+
+tapply(k$Max.Rate,k$Treatment,mean)
+tapply(k$Max.Rate,list(k$Treatment,k$Pretreatment),mean)
+tapply(k$Max.Rate,k$Treatment,mean)
+
