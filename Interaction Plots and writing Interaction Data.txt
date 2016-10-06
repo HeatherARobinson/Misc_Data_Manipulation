@@ -1,0 +1,23 @@
+k<-read.table("master table3.txt", sep="~", header=T, na.strings=".")
+attach(k)
+k$Strain<- factor(k$Strain, labels = c("128", "138"))
+p<-k[k$Strain==levels(k$Strain)[i],]
+fullMod<-lm(Lag~Pretreatment*Treatment, data=k)
+summary(fullMod)
+anova(fullMod)
+
+fD1<-file(paste("Intercepts_FILElag", ".txt",sep=""), open="w")
+cat("Strain", "Pretreatment", "Treatment", "AIC(a)", "AIC(b)", "Interaction", "P value", "\n", file=fD1, sep="~")
+
+for(S in levels(k$Strain)){
+for(A in levels(k$Pretreatment)){
+for(B in levels(k$Treatment)){
+p<-k[k$Strain==S & (k$Pretreatment==A | k$Pretreatment==B) & (k$Treatment==A | k$Treatment==B) ,]
+if(A==B){next}
+a<-lm(p$Lag~p$Pretreatment*p$Treatment, data=p)
+b<-lm(p$Lag~p$Pretreatment+p$Treatment, data=p)
+cat(S,A,B,extractAIC(a)[2],extractAIC(b)[2],(extractAIC(a)[2]<extractAIC(b)[2]),anova(a,b)["Pr(>F)"][2,1], "\n", file=fD1, append=TRUE, sep="~")
+}}}
+close(fD1)
+
+
