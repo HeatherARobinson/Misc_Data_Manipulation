@@ -1,0 +1,9 @@
+folder = getwd()
+files <- list.files(folder,pattern = "*.mp3",full.names = T) 
+   sapply(files,FUN=function(eachPath){ 
+   file.rename(from=eachPath,to= 
+#sub(pattern="\\/", paste0("\\/N0_"),eachPath)
+gsub(" ", "", eachPath, fixed = TRUE)
+
+)
+ })
